@@ -48,7 +48,7 @@ Estimated runtime:
 Approximately 14 hours using 25 CPU cores and 25 replications.
 
 Available methods:
-IS-VS, IS-CE, IS-Pareto, WAMK-SIS, Lasso, SpAM, RF-RFE, OptiTreeStrat
+IS-VS, IS-CE, IS-Pareto, WAMK-SIS, Lasso, SpAM, RF-RFE, OptiTreeStrat, RF-VS, and GP-VS
 
 ----------------------------------------------------------------------
 B. Reproducing the ECL Baseline 
@@ -69,7 +69,24 @@ Estimated runtime:
 Approximately 2 days per example.
 
 ----------------------------------------------------------------------
-C. Software Requirements
+C. Reproducing the Case Study
+----------------------------------------------------------------------
+
+The case study is implemented in Matlab and provided separately in the
+`Case_study` folder.
+
+To reproduce the results, open and run the following Jupyter notebooks:
+
+- Experiment_main.m   (WAMK-SIS) Data generated: Ex2_n_exp_25_2023-8-3-23-54.mat
+- Experiment_main_CV.m   (IS-VS) Data generated: Ex2_n_exp_25_2024-12-23-13-40.mat
+
+Each notebook is self-contained and can be run independently.
+
+Estimated runtime:
+Approximately 7 days.
+
+----------------------------------------------------------------------
+D. Software Requirements
 ----------------------------------------------------------------------
 
 R version: 4.2.2
@@ -86,7 +103,7 @@ Required Python packages include:
 numpy, pandas, pyDOE, scipy, scikit-learn, matplotlib, dill
 
 ----------------------------------------------------------------------
-D. Notes
+E. Notes
 ----------------------------------------------------------------------
 
 The implementation of the ECL baseline method is adapted from publicly
