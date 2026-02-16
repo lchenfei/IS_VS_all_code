@@ -7,8 +7,6 @@ This repository contains the code to reproduce the numerical experiments
 reported in the paper. 
 
 
-The code reproduces the results in Table 1.
-
 ----------------------------------------------------------------------
 A. Reproducing Table 1 and 2 (All Methods Excluding ECL)
 ----------------------------------------------------------------------
