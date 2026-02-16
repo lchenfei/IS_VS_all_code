@@ -1,0 +1,168 @@
+---
+title: "Untitled"
+output: html_document
+date: '2024-05-11'
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+```{r}
+library(ggplot2)
+library(R.matlab)
+```
+
+```{r}
+source("AMISE_bivariate.R")
+source("AMISE_univariate.R")
+```
+
+
+```{r} 
+data = readMat("Ex2_n_exp_25_2023-8-3-23-54.mat")
+```
+
+```{r}
+X = data$samples[[5]][[1]]
+```
+
+```{r}
+S_find = function(x_mat, X_mat, Z, h_mat, combo, weight, i_list){
+  S_est = 0
+  #print(i_list)
+  for (i in 1:length(i_list)){
+    c = i_list[i]
+    #print(c)
+    cb = combo[c,]
+    h = h_mat[c,]
+    w = weight[c]
+    #print(w)
+    S_temp = S_bi(matrix(x_mat[,cb],ncol=2),X_mat[,cb],Z,h[1],h[2])
+    S_est = S_est+w*S_temp
+  }
+  #print(S)
+  S = S_est
+  S[is.na(S)] = 0
+  S[S==Inf] = 0
+  return(S)
+}
+```
+
+```{r}
+i = 5
+j = 1
+
+h_mat = data$bandwidth.info[[i]][[1]][[j]][[1]]
+weight = data$weightv.info[[i]][[1]][[j]][[1]]
+i_list = data$v.list[[i]][[1]][[j]][[1]]
+
+     Y = data$responses[, i][[1]][[1]]
+     X = data$samples[[i]][[1]]
+     #Y = data$responses[, i][[1]][[1]]
+     Z = Y > 2.06
+     X_first = X[1:600 + 200 * (j - 1), ]
+     Y_first = Y[1:600 + 200 * (j - 1)]
+     Z = Y_first > 2.06
+     x_new = X[(601 + 200 * (j - 1)):(800 + 200 * (j - 1)), ]
+     D = 5
+     combo = t(combn(seq(1:D), 2))
+     S_all = S_find(x_new, X_first, Z, h_mat, combo, weight, i_list)
+     w = 1/sqrt(S_all)/sum(1/sqrt(S_all))
+```
+
+```{r}
+w_ce = w
+```
+
+```{r}
+data = readMat('Ex2_n_exp_25_2024-12-23-13-40.mat')
+```
+
+```{r}
+i = 5
+j = 1
+
+h_mat = data$bandwidth.info[[i]][[1]][[j]][[1]]
+weight = data$weightv.info[[i]][[1]][[j]][[1]]
+i_list = data$v.list[[i]][[1]][[j]][[1]]
+
+     Y = data$responses.CV.update[, i][[1]][[1]]
+     X = data$samples.CV.update[[i]][[1]]
+     #Y = data$responses[, i][[1]][[1]]
+     Z = Y > 2.06
+     X_first = X[1:600 + 200 * (j - 1), ]
+     Y_first = Y[1:600 + 200 * (j - 1)]
+     Z = Y_first > 2.06
+     x_new = X[(601 + 200 * (j - 1)):(800 + 200 * (j - 1)), ]
+     S_all = S_find(x_new, X_first, Z, h_mat, combo, weight, i_list)
+     w = 1/sqrt(S_all)/sum(1/sqrt(S_all))
+```
+
+```{r}
+w_vs = w
+```
+
+
+```{r}
+df <- data.frame(
+  Category = rep(c("IS-CE", "IS-VS"), each = 200),
+  Value = c(w_ce, w_vs)
+)
+```
+
+
+
+```{r}
+# pdf("Wind_IS_Weight_Violin_Omega_Kernel.pdf")
+
+ggplot(df, aes(x = Category, y = Value)) +
+  geom_violin(trim = FALSE, fill = "lightblue") + labs(x = "", y = "") + 
+  theme(axis.text.x = element_text(size = 14), axis.text.y = element_text(face = "bold", size = 14))  +
+  scale_x_discrete(labels = c(
+    "Omega" = expression(bold(Omega[M] == "{B(V, TI)}")),
+    "IS-VS" = expression(bold("IS-VS"))
+  ))
+
+# dev.off()
+```
+
+```{r}
+# pdf("Wind_IS_Weight_Violin_Update_Zoom.pdf", width = 7.5, height = 5.5)
+
+ggplot(df, aes(x = Category, y = Value)) +
+  geom_violin(trim = FALSE, fill = "lightblue") + labs(x = "", y = "") + 
+  theme(
+    axis.text.x  = element_text(size = 16.5, color = "black"),
+    axis.text.y  = element_text(size = 16.5, color = "black"),
+    axis.title.y = element_text(size = 16.5, color = "black") # ,
+    # axis.line    = element_line(color = "black"),
+    # axis.ticks   = element_line(color = "black")
+  )
+
+# dev.off()
+```
+
+```{r}
+# pdf("Wind_IS_Weight_Violin_Update_Zoom_Colored.pdf", width = 7.5, height = 5.5)
+
+ggplot(df, aes(x = Category, y = Value, fill = Category)) +
+  geom_violin(trim = FALSE) + labs(x = "", y = "")+
+  scale_fill_manual(
+    values = c(
+      "IS-CE" = "#c6dbef",
+      "IS-VS" = "#f4a261"   # highlighted method
+    )
+  ) + 
+  theme(
+    legend.position = "none",
+    axis.text.x  = element_text(size = 16.5, color = "black"),
+    axis.text.y  = element_text(size = 16.5, color = "black"),
+    axis.title.y = element_text(size = 16.5, color = "black") # ,
+    # axis.line    = element_line(color = "black"),
+    # axis.ticks   = element_line(color = "black")
+  )
+
+# dev.off()
+```
+

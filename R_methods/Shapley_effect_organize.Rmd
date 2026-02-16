@@ -1,0 +1,355 @@
+---
+title: "Untitled"
+output: html_document
+date: '2026-02-16'
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+```{r}
+load("./ex1_X_SIS_list.Rdata")
+```
+
+```{r}
+num_SIS = c()
+k = 8
+for(i in 1:25){
+  num_SIS = c(num_SIS, POE_est[[(i - 1) * k + 4]])
+}
+```
+
+```{r}
+paste_index = function(x){
+  index_all = ""
+  for(xi in 1:length(x)){
+    index_all = paste(index_all, x[xi])
+  }
+  return(index_all)
+}
+```
+
+
+```{r}
+num_SIS_index_all = c()
+for(i in 1:125){
+  num_SIS_index_all = c(num_SIS_index_all,  paste_index(as.character(num_SIS[[i]])))
+}
+```
+
+```{r}
+table(num_SIS_index_all)/125
+```
+
+```{r}
+find_Shaley_effect_kernel_all <- function(i_list, weight_unnormalize){
+  variable_all = i_list
+  s_all = c()
+  n = length(variable_all)
+  for(variable_num in 1:n){
+  variable_i = variable_all[variable_num]
+  s_i = 0
+  variable_other = variable_all[variable_all != variable_i]
+  # print(variable_other)
+  set = list(c())
+  for(i in 1:length(variable_other)){
+    com_set = t(combn(seq(1:(n - 1)), i))
+    for(j in 1:nrow(com_set)){
+      set = c(set, list(variable_other[com_set[j, ]]))
+    }
+  }
+  # print(set)
+  #set = list(c(), c(2) , c(3), c(4), c(2, 3), c(2, 4) , c(3, 4), c(2, 3, 4))
+  for(i in 1:length(set)){
+    set_i = set[[i]]
+    if(length(set[[i]]) == 0){
+      s_set_i = c(0, 0)
+      
+    }
+    else{
+    n_list = c(set_i)
+    # k_list = find_k_var_list(combo, set_i, n_list)
+    weight_n = weight_unnormalize/sum(weight_unnormalize[n_list])
+    # print(n_list)
+    # print(k_list)
+    s_set_i = S_add2(x_new, X_first, Z, h_mat, combo, weight_n, n_list)
+    # print(var(s_set_i))
+    }
+    n_list_one = c(set_i, variable_i)
+    # print(n_list_one)
+    # k_list_one = find_k_var_list(combo, c(set_i, variable_i), n_list_one)
+    # print(k_list_one)
+    weight_n_one = weight_unnormalize/sum(weight_unnormalize[n_list_one])
+    s_set_i_one = S_add2(x_new, X_first, Z, h_mat, combo, weight_n_one, n_list_one)
+    # print(s_set_i_one)
+    
+    s_norm = length(set_i)
+
+    parameter = factorial(s_norm) * factorial(n - s_norm - 1)/ factorial(n)
+
+    s_i = s_i + parameter * (var(s_set_i_one) - var(s_set_i))
+    # print(parameter)
+    
+    
+  }
+    s_all = c(s_all, s_i)
+  }
+  return(s_all)
+}
+```
+
+
+```{r}
+# S_shape_1 = c()
+# S_shape_2 = c()
+# S_shape_3 = c()
+# S_shape_4 = c()
+# S_shape_all = c()
+# S_variance_all = c()
+# k = 7
+# count_num = 0
+# data = POE_est
+count_num = 0
+S_shape_1 = c()
+S_shape_2 = c()
+S_shape_3 = c()
+S_shape_4 = c()
+S_shape_all = c()
+S_variance_all = c()
+k = 8
+data = POE_est
+for(i in 1:25){
+  for(j in 1:5){
+    h_mat = data[[i * k]][[j]]
+    weight = data[[(i - 1) * k + 6]][[j]]
+#print(weight)
+#print("weightnum")
+    i_list = data[[(i - 1) * k + 4]][[j]]
+    if(length(i_list) == 2 && sum(i_list == c(1, 6)) == 2){
+     Y_first = data[[(i - 1) * k + 3]][1: (200 * j)]
+     X_first = data[[(i - 1) * k + 2]][1: (200 * j), ]
+     Z = Y_first > 18.99
+     x_new = data[[(i - 1) * k + 2]][(200 * j + 1): (200 * j + 200), ]
+     combo = t(combn(seq(1:4), 2))
+     S_all = S_add2(x_new, X_first, Z, h_mat, combo, weight, i_list)
+     S_all = var(S_all)
+     S_variance_all = c(S_variance_all, S_all)
+     weight_unnormalize = weight/sum(weight[i_list])
+     
+
+     S_i = find_Shaley_effect_kernel_all(i_list, weight_unnormalize)
+     S_shape_all = c(S_shape_all, S_i/S_all)
+     count_num = count_num + 1
+     
+     if (count_num  == 3){
+       print(i)
+       print(j)
+     }
+    }
+}
+}
+
+for(i in 0: (count_num - 1)){
+  S_shape_1 = c(S_shape_1, S_shape_all[(2 * i + 1)])
+  S_shape_2 = c(S_shape_2, S_shape_all[(2 * i + 2)])
+  # S_shape_3 = c(S_shape_3, S_shape_all[(3 * i + 3)])
+  # S_shape_4 = c(S_shape_4, S_shape_all[(4 * i + 4)])
+}
+```
+
+```{r}
+print(mean(S_shape_1))
+print(mean(S_shape_2))
+```
+
+```{r}
+# S_shape_1 = c()
+# S_shape_2 = c()
+# S_shape_3 = c()
+# S_shape_4 = c()
+# S_shape_all = c()
+# S_variance_all = c()
+# k = 7
+# count_num = 0
+# data = POE_est
+count_num = 0
+S_shape_1 = c()
+S_shape_2 = c()
+S_shape_3 = c()
+S_shape_4 = c()
+S_shape_all = c()
+S_variance_all = c()
+k = 8
+data = POE_est
+for(i in 1:25){
+  for(j in 1:5){
+    h_mat = data[[i * k]][[j]]
+    weight = data[[(i - 1) * k + 6]][[j]]
+#print(weight)
+#print("weightnum")
+    i_list = data[[(i - 1) * k + 4]][[j]]
+    if(length(i_list) == 2 && sum(i_list == c(1, 4)) == 2){
+     Y_first = data[[(i - 1) * k + 3]][1: (200 * j)]
+     X_first = data[[(i - 1) * k + 2]][1: (200 * j), ]
+     Z = Y_first > 18.99
+     x_new = data[[(i - 1) * k + 2]][(200 * j + 1): (200 * j + 200), ]
+     combo = t(combn(seq(1:4), 2))
+     S_all = S_add2(x_new, X_first, Z, h_mat, combo, weight, i_list)
+     S_all = var(S_all)
+     S_variance_all = c(S_variance_all, S_all)
+     weight_unnormalize = weight/sum(weight[i_list])
+     
+
+     S_i = find_Shaley_effect_kernel_all(i_list, weight_unnormalize)
+     S_shape_all = c(S_shape_all, S_i/S_all)
+     count_num = count_num + 1
+     
+     if (count_num  == 3){
+       print(i)
+       print(j)
+     }
+    }
+}
+}
+
+for(i in 0: (count_num - 1)){
+  S_shape_1 = c(S_shape_1, S_shape_all[(2 * i + 1)])
+  S_shape_2 = c(S_shape_2, S_shape_all[(2 * i + 2)])
+  # S_shape_3 = c(S_shape_3, S_shape_all[(3 * i + 3)])
+  # S_shape_4 = c(S_shape_4, S_shape_all[(4 * i + 4)])
+}
+```
+
+```{r}
+print(mean(S_shape_1))
+print(mean(S_shape_2))
+```
+
+```{r}
+# S_shape_1 = c()
+# S_shape_2 = c()
+# S_shape_3 = c()
+# S_shape_4 = c()
+# S_shape_all = c()
+# S_variance_all = c()
+# k = 7
+# count_num = 0
+# data = POE_est
+count_num = 0
+S_shape_1 = c()
+S_shape_2 = c()
+S_shape_3 = c()
+S_shape_4 = c()
+S_shape_all = c()
+S_variance_all = c()
+k = 8
+data = POE_est
+for(i in 1:25){
+  for(j in 1:5){
+    h_mat = data[[i * k]][[j]]
+    weight = data[[(i - 1) * k + 6]][[j]]
+#print(weight)
+#print("weightnum")
+    i_list = data[[(i - 1) * k + 4]][[j]]
+    if(length(i_list) == 2 && sum(i_list == c(1, 5)) == 2){
+     Y_first = data[[(i - 1) * k + 3]][1: (200 * j)]
+     X_first = data[[(i - 1) * k + 2]][1: (200 * j), ]
+     Z = Y_first > 18.99
+     x_new = data[[(i - 1) * k + 2]][(200 * j + 1): (200 * j + 200), ]
+     combo = t(combn(seq(1:4), 2))
+     S_all = S_add2(x_new, X_first, Z, h_mat, combo, weight, i_list)
+     S_all = var(S_all)
+     S_variance_all = c(S_variance_all, S_all)
+     weight_unnormalize = weight/sum(weight[i_list])
+     
+
+     S_i = find_Shaley_effect_kernel_all(i_list, weight_unnormalize)
+     S_shape_all = c(S_shape_all, S_i/S_all)
+     count_num = count_num + 1
+     
+     if (count_num  == 3){
+       print(i)
+       print(j)
+     }
+    }
+}
+}
+
+for(i in 0: (count_num - 1)){
+  S_shape_1 = c(S_shape_1, S_shape_all[(2 * i + 1)])
+  S_shape_2 = c(S_shape_2, S_shape_all[(2 * i + 2)])
+  # S_shape_3 = c(S_shape_3, S_shape_all[(3 * i + 3)])
+  # S_shape_4 = c(S_shape_4, S_shape_all[(4 * i + 4)])
+}
+```
+
+```{r}
+print(mean(S_shape_1))
+print(mean(S_shape_2))
+```
+
+
+```{r}
+# S_shape_1 = c()
+# S_shape_2 = c()
+# S_shape_3 = c()
+# S_shape_4 = c()
+# S_shape_all = c()
+# S_variance_all = c()
+# k = 7
+# count_num = 0
+# data = POE_est
+count_num = 0
+S_shape_1 = c()
+S_shape_2 = c()
+S_shape_3 = c()
+S_shape_4 = c()
+S_shape_all = c()
+S_variance_all = c()
+k = 8
+data = POE_est
+for(i in 1:25){
+  for(j in 1:5){
+    h_mat = data[[i * k]][[j]]
+    weight = data[[(i - 1) * k + 6]][[j]]
+#print(weight)
+#print("weightnum")
+    i_list = data[[(i - 1) * k + 4]][[j]]
+    if(length(i_list) == 3 && sum(i_list == c(1, 3, 5)) == 3){
+     Y_first = data[[(i - 1) * k + 3]][1: (200 * j)]
+     X_first = data[[(i - 1) * k + 2]][1: (200 * j), ]
+     Z = Y_first > 18.99
+     x_new = data[[(i - 1) * k + 2]][(200 * j + 1): (200 * j + 200), ]
+     combo = t(combn(seq(1:4), 2))
+     S_all = S_add2(x_new, X_first, Z, h_mat, combo, weight, i_list)
+     S_all = var(S_all)
+     S_variance_all = c(S_variance_all, S_all)
+     weight_unnormalize = weight/sum(weight[i_list])
+     
+
+     S_i = find_Shaley_effect_kernel_all(i_list, weight_unnormalize)
+     S_shape_all = c(S_shape_all, S_i/S_all)
+     count_num = count_num + 1
+     
+     if (count_num  == 3){
+       print(i)
+       print(j)
+     }
+    }
+}
+}
+
+for(i in 0: (count_num - 1)){
+  S_shape_1 = c(S_shape_1, S_shape_all[(3 * i + 1)])
+  S_shape_2 = c(S_shape_2, S_shape_all[(3 * i + 2)])
+  S_shape_3 = c(S_shape_3, S_shape_all[(3 * i + 3)])
+  # S_shape_4 = c(S_shape_4, S_shape_all[(4 * i + 4)])
+}
+```
+
+```{r}
+print(mean(S_shape_1))
+print(mean(S_shape_2))
+print(mean(S_shape_3))
+```
