@@ -10,7 +10,7 @@ reported in the paper.
 The code reproduces the results in Table 1.
 
 ----------------------------------------------------------------------
-A. Reproducing Table 1 (All Methods Excluding ECL)
+A. Reproducing Table 1 and 2 (All Methods Excluding ECL)
 ----------------------------------------------------------------------
 
 All R-based methods are implemented in the `R_methods` folder.
@@ -69,7 +69,13 @@ Estimated runtime:
 Approximately 2 days per example.
 
 ----------------------------------------------------------------------
-C. Reproducing the Case Study
+C. Reproducing Table 3 and 4
+----------------------------------------------------------------------
+
+The analysis of IS-VS is provided in the Ex1_analysis.rmd. 
+
+----------------------------------------------------------------------
+D. Reproducing the Case Study
 ----------------------------------------------------------------------
 
 The case study is implemented in Matlab and provided separately in the
@@ -78,18 +84,19 @@ The case study is implemented in Matlab and provided separately in the
 To reproduce the results, open and run the following Jupyter notebooks:
 
 - Experiment_main.m   (WAMK-SIS)
-  Data generated: Ex2_n_exp_25_2023-8-3-23-54.mat
+  (Data generated: Ex2_n_exp_25_2023-8-3-23-54.mat)
   
 - Experiment_main_CV.m   (IS-VS)
-  Data generated: Ex2_n_exp_25_2024-12-23-13-40.mat
+  (Data generated: Ex2_n_exp_25_2024-12-23-13-40.mat)
 
 Each notebook is self-contained and can be run independently.
 
 Estimated runtime:
 Approximately 7 days.
 
+
 ----------------------------------------------------------------------
-D. Software Requirements
+E. Software Requirements
 ----------------------------------------------------------------------
 
 R version: 4.2.2
@@ -106,7 +113,7 @@ Required Python packages include:
 numpy, pandas, pyDOE, scipy, scikit-learn, matplotlib, dill
 
 ----------------------------------------------------------------------
-E. Notes
+F. Notes
 ----------------------------------------------------------------------
 
 The implementation of the ECL baseline method is adapted from publicly
