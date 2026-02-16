@@ -77,8 +77,11 @@ The case study is implemented in Matlab and provided separately in the
 
 To reproduce the results, open and run the following Jupyter notebooks:
 
-- Experiment_main.m   (WAMK-SIS) Data generated: Ex2_n_exp_25_2023-8-3-23-54.mat
-- Experiment_main_CV.m   (IS-VS) Data generated: Ex2_n_exp_25_2024-12-23-13-40.mat
+- Experiment_main.m   (WAMK-SIS)
+  Data generated: Ex2_n_exp_25_2023-8-3-23-54.mat
+  
+- Experiment_main_CV.m   (IS-VS)
+  Data generated: Ex2_n_exp_25_2024-12-23-13-40.mat
 
 Each notebook is self-contained and can be run independently.
 
